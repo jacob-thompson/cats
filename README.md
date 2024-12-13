@@ -1,5 +1,17 @@
 # cats
 
-Collection of cat-printing scripts
+```
+                      (`.-,')
+                    .-'     ;
+                _.-'   , `,-
+          _ _.-'     .'  /._
+        .' `  _.-.  /  ,'._;)
+       (       .  )-| (
+        )`,_ ,'_,'  \_;)
+('_  _,'.'  (___,))
+ `-:;.-'
+```
 
-Used to test my vim plugin, [vim-compilerun](https://github.com/jacob-thompson/vim-compilerun)
+A collection of cat-printing scripts in various languages
+
+Created to test my vim plugin, [vim-compilerun](https://github.com/jacob-thompson/vim-compilerun)
