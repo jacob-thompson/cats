@@ -75,7 +75,6 @@ int main(void)
 
     int line_count = get_file_line_count();
     int random_line = rand() % line_count;
-    std::cout << random_line << std::endl;
     std::string message = get_message_from_line(random_line);
 
     print_bubble(message);
