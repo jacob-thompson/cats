@@ -1,34 +1,18 @@
-POSSIBLE_LINES=$(cat support.txt | wc -l)
-LINE_NUM=$((RANDOM % $POSSIBLE_LINES + 1))
-LINE=$(sed -n "${LINE_NUM}p" support.txt)
-LINE=${LINE%$'\n'}
-LINE_LEN=${#LINE}
-BUBBLE_LEN=$((LINE_LEN + 4))
+#!/bin/sh
 
-# Print the top of the bubble
-echo -n "   "
-for i in $(seq 1 $BUBBLE_LEN); do
-    echo -n "_"
-done
-echo
+if [ "$#" -gt 1 ]; then
+  printf 'Usage: cat [file]\n' >&2
+  exit 1
+fi
 
-# Print the middle of the bubble
-echo -n "  / "
-for i in $(seq 1 $(($BUBBLE_LEN-2))); do
-    echo -n " "
-done
-echo " \\"
+if [ "$#" -eq 1 ]; then
+  if [ ! -r "$1" ]; then
+    printf '%s: No such file or directory\n' "$1" >&2
+    exit 1
+  fi
+  /bin/cat -- "$1" || exit 1
+else
+  /bin/cat || exit 1
+fi
 
-# Print the line
-echo -n " |   "
-echo -n $LINE
-echo "   |"
-
-# Print the bottom of the bubble
-echo -n "  \\ "
-for i in $(seq 1 $(($BUBBLE_LEN-2))); do
-    echo -n "_"
-done
-echo " /"
-
-cat cat.txt
+exit 0

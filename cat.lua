@@ -1,63 +1,61 @@
-math.randomseed(os.time())
+#!/usr/bin/env lua
 
-CAT = "cat.txt"
-SUPPORT = "support.txt"
+local argc = #arg
 
-local function file_exists(file)
-    local f = io.open(file, "rb")
-    if f then f:close() end
-    return f ~= nil
+local function usage()
+  io.stderr:write("Usage: cat [file]\n")
+  os.exit(1)
 end
 
-local function line_count(file)
-    local count = 0
-    for _ in io.lines(file) do
-        count = count + 1
+local function main()
+  if argc > 1 then
+    usage()
+  end
+
+  if argc == 1 then
+    local filename = arg[1]
+    local f, err = io.open(filename, "rb")
+    if not f then
+      io.stderr:write(string.format("%s: %s\n", filename, err))
+      os.exit(1)
     end
-    return count
-end
 
-local function get_line(file, line_number)
-    local index = 1
-    for line in io.lines(file) do
-        if index == line_number then
-            return line
-        end
-        index = index + 1
+    while true do
+      local chunk = f:read(8192)
+      if not chunk then break end
+      local ok, werr = pcall(function() io.stdout:write(chunk) end)
+      if not ok then
+        io.stderr:write(string.format("%s: %s\n", filename, werr or "write error"))
+        f:close()
+        os.exit(1)
+      end
     end
+
+    f:close()
+  else
+    while true do
+      local chunk = io.stdin:read(8192)
+      if not chunk then break end
+      local ok, werr = pcall(function() io.stdout:write(chunk) end)
+      if not ok then os.exit(1) end
+    end
+  end
+
+  return 0
 end
 
-local function print_bubble(message, length)
-    local bubble_length = length + 4
-
-    -- print top of bubble
-    print("   " .. string.rep("_", bubble_length))
-
-    -- print middle of bubble
-    print("  / " .. string.rep(" ", bubble_length - 2) .. " \\")
-
-    -- print message
-    print(" |   " .. message .. "   |")
-
-    -- print bottom of bubble
-    print("  \\ " .. string.rep("_", bubble_length - 2) .. " /")
+local function handle_err(err)
+  local msg = tostring(err)
+  if msg:match("interrupted") then
+    -- exit with 130 (128 + SIGINT)
+    io.flush()
+    os.exit(130)
+  else
+    io.stderr:write(msg .. "\n")
+    io.flush()
+    os.exit(1)
+  end
 end
 
-local function print_cat()
-    local file = io.open(CAT, "rb")
-    if not file then return nil end
-    local content = file:read "*a"
-    file:close()
-    print(content)
-end
-
-if not file_exists(SUPPORT) or not file_exists(CAT)then
-    os.exit(1) -- exit with an error code
-end
-
-local random_line = math.random(1, line_count(SUPPORT))
-local line = get_line(SUPPORT, random_line)
-local line_length = string.len(line)
-
-print_bubble(line, line_length)
-print_cat()
+local ok, rv = xpcall(main, handle_err)
+if ok then io.flush(); os.exit(rv or 0) end

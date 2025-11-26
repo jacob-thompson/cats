@@ -1,18 +1,20 @@
-require 'securerandom'
+#!/usr/bin/env ruby
 
-def generate_speech_bubble(message)
-  bubble_width = message.length + 4
-  top = "   " + "_" * bubble_width
-  middle = "  / " + " " * (bubble_width - 2) + " \\"
-  text = " |   " + message + "   |"
-  bottom = "  \\ " + "_" * (bubble_width - 2) + " /"
-  "#{top}\n#{middle}\n#{text}\n#{bottom}"
+if ARGV.length > 1
+  STDERR.puts "Usage: cat [file]"
+  exit 1
 end
 
-supportive_sentences = File.readlines('support.txt', chomp: true)
-message = supportive_sentences.sample
+STDIN.binmode
+STDOUT.binmode
 
-cat = File.read('cat.txt')
-
-puts generate_speech_bubble(message)
-puts cat
+if ARGV.length == 1
+  begin
+    File.open(ARGV[0], "rb") { |f| IO.copy_stream(f, STDOUT) }
+  rescue => e
+    STDERR.puts "#{ARGV[0]}: #{e.message}"
+    exit 1
+  end
+else
+  IO.copy_stream(STDIN, STDOUT)
+end

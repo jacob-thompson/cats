@@ -1,22 +1,24 @@
-import random
+#!/usr/bin/env python3
 
+import sys
+import shutil
 
-def generate_speech_bubble(message):
-    bubble_width = len(message) + 4
-    top = "   " + "_" * bubble_width
-    middle = f"  / {' ' * (bubble_width - 2)} \\"
-    text = f" |   {message}   |"
-    bottom = f"  \\ {'_' * (bubble_width - 2)} /"
-    return f"{top}\n{middle}\n{text}\n{bottom}"
+def usage():
+    sys.stderr.write("Usage: cat [file]\n")
+    sys.exit(1)
 
+if len(sys.argv) > 2:
+    usage()
 
-with open("support.txt") as f:
-    supportive_sentences = f.read().strip().splitlines()
-
-message = random.choice(supportive_sentences)
-
-with open("cat.txt") as f:
-    cat = f.read()
-
-print(generate_speech_bubble(message))
-print(cat)
+if len(sys.argv) == 2:
+    try:
+        with open(sys.argv[1], 'rb') as f:
+            shutil.copyfileobj(f, sys.stdout.buffer)
+    except OSError as e:
+        sys.stderr.write(f"{sys.argv[1]}: {e.strerror}\n")
+        sys.exit(1)
+else:
+    try:
+        shutil.copyfileobj(sys.stdin.buffer, sys.stdout.buffer)
+    except OSError:
+        sys.exit(1)
